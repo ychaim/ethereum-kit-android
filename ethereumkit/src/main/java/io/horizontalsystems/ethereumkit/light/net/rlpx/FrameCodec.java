@@ -186,6 +186,9 @@ public class FrameCodec {
                 if (rlpList.size() > 2) {
                     totalFrameSize = rlpDecodeInt(rlpList.get(2));
                 }
+                if (contextId > 0) {
+                    System.out.println(" !!!!!!!!!!!!!!!! Multi-frame messages not supported yet " + contextId + " " + totalFrameSize);
+                }
             }
 
             isHeadRead = true;
