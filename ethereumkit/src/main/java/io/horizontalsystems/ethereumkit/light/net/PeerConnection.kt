@@ -3,6 +3,7 @@ package io.horizontalsystems.ethereumkit.light.net;
 import io.horizontalsystems.ethereumkit.core.hexStringToByteArray
 import io.horizontalsystems.ethereumkit.core.toHexString
 import io.horizontalsystems.ethereumkit.light.crypto.ECKey
+import io.horizontalsystems.ethereumkit.light.crypto.HashUtil
 import io.horizontalsystems.ethereumkit.light.net.message.*
 import io.horizontalsystems.ethereumkit.light.net.p2p.DisconnectMessage
 import io.horizontalsystems.ethereumkit.light.net.p2p.HelloMessage
@@ -31,10 +32,12 @@ class PeerConnection {
             val output = socket.getOutputStream()
 
             val genesisBlockHash = "41941023680923e0fe4d74a34bdac8141f2540e3ae90623718e47d66d1ca4a2d".hexStringToByteArray()
-            val address = "0xF757461bdc25Ee2b047d545a50768e52D530b750"
-            val lastBlockNumber = 4848254
-            val lastBlockhash = "0xcfbbc6a17c40076f24ee926fcb644964a077edb63dc1c6742511001513e73d05"
-            val lastBlockHeaderStateRootHash = "0xea541a1fd39ab125237bf4cb9d5d0e27c0827452bddac6392c5072ce27b0c423"
+            val address = "f757461bdc25ee2b047d545a50768e52d530b750".hexStringToByteArray()
+            val address2 = "37531e574427BDE92d9B3a3c2291D9A004827435".hexStringToByteArray()
+            val address3 = "1b763c4b9632d6876D83B2270fF4d01b792DE479".hexStringToByteArray()
+            val address4 = "401CB37eFa5d82dC51FB599e6A4B1D2b3aaeb2B2".hexStringToByteArray()
+            val lastBlockhash = "bec7824a4ee5f616e050d885c3b943c7933af24cdb5cacb9f871063741d1a116".hexStringToByteArray()
+            val lastBlockHeaderStateRootHash = "2f9260472bde15e4c9cf55f9a158ae1d5852bb8de51fdf515ce8077b8a6a7213".hexStringToByteArray()
 
             try {
                 println("Socket connected.")
@@ -60,7 +63,7 @@ class PeerConnection {
                 //hello
                 val frameCodec = FrameCodec(handshake.secrets)
                 val helloMessage = staticMessages.createHelloMessage(myKey.nodeId.toHexString())
-                println(helloMessage.toString())
+                println(">>> " + helloMessage.toString())
                 frameCodec.writeFrame(FrameCodec.Frame(helloMessage.code.toInt(), helloMessage.encoded), output)
 
                 //hello response
@@ -72,7 +75,7 @@ class PeerConnection {
 
                 if (frame.type == P2pMessageCodes.HELLO.asByte().toLong()) {
                     val responseHello = HelloMessage(payload)
-                    println(responseHello.toString())
+                    println("<<< " + responseHello.toString())
 
                 } else {
                     val disconnectMessage = DisconnectMessage(payload)
@@ -83,7 +86,7 @@ class PeerConnection {
 
                 //les/2 status
                 val les2StatusMessage = StatusMessage(2, 3, "100000".hexStringToByteArray(), genesisBlockHash, BigInteger("0"), genesisBlockHash)
-                println(les2StatusMessage.toString())
+                println(">>> " + les2StatusMessage.toString())
                 frameCodec.writeFrame(FrameCodec.Frame(les2StatusMessage.code + 0x10, les2StatusMessage.encoded), output)
 
                 for (i in 1..1000) {
@@ -124,11 +127,11 @@ class PeerConnection {
                                 println("LES - STATUS Message arrived")
                                 //les/2 status response
                                 val responseStatus = StatusMessage(payload)
-                                println(responseStatus.toString())
+                                println("<<< " + responseStatus.toString())
                                 val requestID = Math.abs(Random().nextLong())
                                 val getBlockHeaders = GetBlockHeadersMessage(requestID, 0, genesisBlockHash, 10, 0, false)
                                 frameCodec.writeFrame(FrameCodec.Frame(LesMessageCodes.GET_BLOCK_HEADERS.asByte().toInt(), getBlockHeaders.encoded), output)
-                                println(getBlockHeaders.toString())
+                                println(">>> " + getBlockHeaders.toString())
                             }
 
                             LesMessageCodes.BLOCK_HEADERS.asByte().toLong() -> {
@@ -137,6 +140,23 @@ class PeerConnection {
                                 val blockHeadersMessage = BlockHeadersMessage(payload)
                                 println(blockHeadersMessage.toString())
 
+                                val requestId = Math.abs(Random().nextLong())
+                                val getProofs = GetProofsMessage(requestId, lastBlockhash, HashUtil.sha3(address))
+                                frameCodec.writeFrame(FrameCodec.Frame(LesMessageCodes.GET_PROOFS_V2.asByte().toInt(), getProofs.encoded), output)
+                                println(">>> " + getProofs.toString())
+                            }
+
+                            LesMessageCodes.PROOFS_V2.asByte().toLong() -> {
+                                println("LES - PROOFS Message arrived")
+
+                                val proofsMessage = ProofsMessage(payload)
+                                println("<<< " + proofsMessage.toString())
+
+                                if (proofsMessage.validProof(lastBlockHeaderStateRootHash, HashUtil.sha3(address))) {
+                                    println("Proof is Valid")
+                                } else {
+                                    println("Proof is inValid!!!")
+                                }
                             }
 
                             else -> {

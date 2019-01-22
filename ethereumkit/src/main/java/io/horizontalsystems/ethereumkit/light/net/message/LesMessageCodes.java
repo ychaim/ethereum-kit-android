@@ -73,7 +73,7 @@ public enum LesMessageCodes {
      * Require peer to return a BlockBodies message.
      * Specify the set of blocks that we're interested in with the hashes.
      */
-    GET_BLOCK_BODIES(0x05 + 0x10),
+    GET_BLOCK_BODIES(0x04 + 0x10),
 
     /**
      * {@code [+0x06, [transactions_0, uncles_0] , ...] } <br>
@@ -86,34 +86,7 @@ public enum LesMessageCodes {
      * This may validly contain no block headers
      * if no block headers were able to be returned for the GetBlockHeaders query.
      */
-    BLOCK_BODIES(0x06 + 0x10),
-
-    /**
-     * {@code [+0x07 [blockHeader, transactionList, uncleList], totalDifficulty] } <br>
-     * <p>
-     * Specify a single block that the peer should know about. The composite item
-     * in the list (following the message ID) is a block in the format described
-     * in the main Ethereum specification.
-     */
-    NEW_BLOCK(0x07 + 0x10),
-
-    /**
-     * {@code [+0x0d, hash_0: B_32, hash_1: B_32, ...] } <br>
-     * <p>
-     * Require peer to return a NodeData message. Hint that useful values in it
-     * are those which correspond to given hashes.
-     */
-    GET_NODE_DATA(0x0d + 0x10),
-
-    /**
-     * {@code [+0x0e, value_0: B, value_1: B, ...] } <br>
-     * <p>
-     * Provide a set of values which correspond to previously asked node data
-     * hashes from GetNodeData. Does not need to contain all; best effort is
-     * fine. If it contains none, then has no information for previous
-     * GetNodeData hashes.
-     */
-    NODE_DATA(0x0e + 0x10),
+    BLOCK_BODIES(0x05 + 0x10),
 
     /**
      * {@code [+0x0f, hash_0: B_32, hash_1: B_32, ...] } <br>
@@ -121,14 +94,19 @@ public enum LesMessageCodes {
      * Require peer to return a Receipts message. Hint that useful values in it
      * are those which correspond to blocks of the given hashes.
      */
-    GET_RECEIPTS(0x0f + 0x10),
+    GET_RECEIPTS(0x06 + 0x10),
 
     /**
      * {@code [+0x10, [receipt_0, receipt_1], ...] } <br>
      * <p>
      * Provide a set of receipts which correspond to previously asked in GetReceipts.
      */
-    RECEIPTS(0x10 + 0x10);
+    RECEIPTS(0x7 + 0x10),
+
+    GET_PROOFS(0x8 + 0x10),
+    PROOFS(0x9 + 0x10),
+    GET_PROOFS_V2(0x0f + 0x10),
+    PROOFS_V2(0x10 + 0x10);
 
     private int cmd;
 
