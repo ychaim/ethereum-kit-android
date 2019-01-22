@@ -61,6 +61,12 @@ public class ProofsMessage extends LesMessage {
         rlpList = (RLPList) paramsList.get(2);
 
         RLPList.recursivePrint(rlpList);
+        System.out.println();
+
+        if (rlpList.size() == 0) {
+            System.out.println("Proof does not contain any node");
+            return;
+        }
 
         RLPList lastNodeValue = (RLPList) rlpList.get(rlpList.size() - 1);
         TrieNode lastNode = new TrieNode(lastNodeValue);
@@ -82,6 +88,11 @@ public class ProofsMessage extends LesMessage {
     }
 
     public boolean validProof(byte[] stateRoot, byte[] addressHash) {
+        if (rlpList.size() == 0) {
+            System.out.println("Proof does not contain any node");
+            return false;
+        }
+
         RLPList lastNodeValue = (RLPList) rlpList.get(rlpList.size() - 1);
         TrieNode lastNode = new TrieNode(lastNodeValue);
 
