@@ -447,7 +447,7 @@ class EthereumKit(words: List<String>, networkType: NetworkType, walletId: Strin
         val flowable = if (contractAddress == null) {
             etherscanService.getTransactionList(receiveAddress, lastBlockHeight + 1)
         } else {
-            etherscanService.getTokenTransactions(receiveAddress, lastBlockHeight + 1)
+            etherscanService.getTokenTransactions(contractAddress, receiveAddress, lastBlockHeight + 1)
         }
 
         return flowable.map { response ->
