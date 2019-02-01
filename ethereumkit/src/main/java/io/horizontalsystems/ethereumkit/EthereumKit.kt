@@ -262,10 +262,10 @@ class EthereumKit(words: List<String>, networkType: NetworkType, walletId: Strin
 
     private fun handleTransactionsUpdate(collection: RealmResults<Transaction>, changeSet: OrderedCollectionChangeSet) {
         if (changeSet.state == OrderedCollectionChangeSet.State.UPDATE) {
-            val invalid: (Transaction) -> Boolean = { it.contractAddress.isNotEmpty() && it.input != "0x" }
+            val validTx: (Transaction) -> Boolean = { it.contractAddress.isNotEmpty() || it.input == "0x" }
 
-            val inserts = changeSet.insertions.asList().mapNotNull { collection[it] }.filter(invalid)
-            val updates = changeSet.changes.asList().mapNotNull { collection[it] }.filter(invalid)
+            val inserts = changeSet.insertions.asList().mapNotNull { collection[it] }.filter(validTx)
+            val updates = changeSet.changes.asList().mapNotNull { collection[it] }.filter(validTx)
             val deletes = changeSet.deletions.asList()
 
             val ethInserts = inserts.filter { it.contractAddress.isEmpty() }
